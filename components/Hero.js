@@ -143,36 +143,6 @@ export default function Hero() {
                   ))}
                 </div>
               </div>
-
-              {/* Stats Below Image */}
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="bg-white p-4 rounded-xl shadow-md">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex -space-x-2">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-blue-500 border-2 border-white"></div>
-                      ))}
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">1,200+</p>
-                      <p className="text-sm text-neutral-600">Happy Customers</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white p-4 rounded-xl shadow-md">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex -space-x-2">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-blue-500 border-2 border-white"></div>
-                      ))}
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">500+</p>
-                      <p className="text-sm text-neutral-600">New Listings</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
