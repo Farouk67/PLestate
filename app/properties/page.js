@@ -1,8 +1,7 @@
 import { Suspense } from 'react'
 import Filters from '../../components/Filters'
 import PropertyCard from '../../components/PropertyCard'
-import { client } from '../../lib/sanity'
-import { allPropertiesQuery } from '../../lib/queries'
+import { client } from '../../sanity/lib/client'
 
 // Force this page to be dynamic (not pre-rendered)
 export const dynamic = 'force-dynamic'
@@ -21,11 +20,9 @@ async function getProperties(searchParams) {
     const bedrooms = searchParams?.bedrooms
     const location = searchParams?.location
 
-    let query = allPropertiesQuery
-    const params = {}
-
     // Build dynamic query based on filters
     const conditions = []
+    const params = {}
     
     if (status) {
       conditions.push('status == $status')
@@ -52,27 +49,31 @@ async function getProperties(searchParams) {
       params.location = `*${location}*`
     }
 
+    // Build the query
+    let query = '*[_type == "property"]'
     if (conditions.length > 0) {
-      query = `*[_type == "property" && (${conditions.join(' && ')})]{
-        _id,
-        title,
-        slug,
-        price,
-        currency,
-        propertyType,
-        status,
-        bedrooms,
-        bathrooms,
-        area,
-        location,
-        images,
-        featured,
-        description
-      } | order(_createdAt desc)`
+      query = `*[_type == "property" && (${conditions.join(' && ')})]`
     }
+    
+    query += `{
+      _id,
+      title,
+      slug,
+      price,
+      currency,
+      propertyType,
+      status,
+      bedrooms,
+      bathrooms,
+      area,
+      location,
+      images,
+      featured,
+      description
+    } | order(_createdAt desc)`
 
     const properties = await client.fetch(query, params)
-    return properties
+    return properties || []
   } catch (error) {
     console.error('Error fetching properties:', error)
     return []
@@ -81,6 +82,7 @@ async function getProperties(searchParams) {
 
 export default async function PropertiesPage({ searchParams }) {
   const properties = await getProperties(searchParams)
+  const propertiesCount = properties?.length || 0
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-20">
@@ -91,7 +93,7 @@ export default async function PropertiesPage({ searchParams }) {
             Property <span className="text-primary-600">Listings</span>
           </h1>
           <p className="text-neutral-600 text-lg">
-            {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
+            {propertiesCount} {propertiesCount === 1 ? 'property' : 'properties'} found
           </p>
         </div>
 
@@ -101,7 +103,7 @@ export default async function PropertiesPage({ searchParams }) {
         </Suspense>
 
         {/* Properties Grid */}
-        {properties.length > 0 ? (
+        {propertiesCount > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {properties.map((property) => (
               <PropertyCard key={property._id} property={property} />
@@ -116,14 +118,22 @@ export default async function PropertiesPage({ searchParams }) {
             </div>
             <h3 className="text-2xl font-bold text-neutral-900 mb-2">No properties found</h3>
             <p className="text-neutral-600 mb-6">
-              Try adjusting your filters or search criteria
+              Try adjusting your filters or search criteria, or add some properties in Sanity Studio
             </p>
-            <a
-              href="/properties"
-              className="inline-block px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all"
-            >
-              Clear Filters
-            </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="/properties"
+                className="inline-block px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all"
+              >
+                Clear Filters
+              </a>
+              <a
+                href="/studio"
+                className="inline-block px-6 py-3 border-2 border-primary-600 text-primary-600 rounded-lg font-semibold hover:bg-primary-50 transition-all"
+              >
+                Add Properties
+              </a>
+            </div>
           </div>
         )}
       </div>
